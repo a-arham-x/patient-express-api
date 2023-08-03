@@ -1,39 +1,15 @@
 const {Client} = require("pg")
-const bcrypt = require("bcrypt")
-const rd = require("readline-sync")
 
 const client = new Client({
-    host : "localhost",
-    database : "Patient Schema",
-    user : "postgres",
-    password : "abdularham123",
+    host : process.env.PG_HOST,
+    database : process.env.PG_DATABASE,
+    user : process.env.PG_USER,
+    password : process.env.PG_PASSWORD,
     port :  5432
 })
 
-async function connectToClient(){
-    await client.connect()
-    console.log("Connected to client")
-}
 
-// // This function is meant to create the first admin
-async function createAdmin(){
-    connectToClient()   
-    const name = rd.question("Enter Admin name: ")
-    const password = rd.question("Enter Password: ")
-    const email = rd.question("Enter Email: ")
-    const hashedPassword = await bcrypt.hash(password, 10)
-    console.log(typeof(hashedPassword))
-    await client.query(
-        `INSERT into "admin" ("name", "password", "email", "created_by") VALUES ($1, $2, $3, $4)`, [name, hashedPassword, email, 0]
-    ).then(()=>{
-        console.log("Admin Created")
-    }).catch((err)=>{
-        console.log(err)
-    })
-    await client.end()
-}
+client.connect()
 
-// createAdmin()
-
-module.exports = connectToClient;
+module.exports = client;
 

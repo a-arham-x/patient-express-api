@@ -3,19 +3,12 @@ const router = express.Router()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const {body, validationResult} = require("express-validator")
-const {Client} = require("pg")
 const indexLog = require("../indexLogs")
 const fetchPatient = require("../middleware/fetchPatient.js")
+const client = require("../db.js");
+const createTables = require("../createTables.js")
 
-const client = new Client({
-    host : "localhost",
-    database : "Patient Schema",
-    user : "postgres",
-    password : "abdularham123",
-    port :  5432
-})
-
-client.connect()
+createTables()
 
 router.post("/login", [
     body("email", {error: "Email not provided"}).isEmail(),
@@ -146,7 +139,7 @@ router.post("/createvisit", fetchPatient, [
 ], async (req, res)=>{
     let num_errors = 0;
 
-    const message = `Visit creation request by a patient with patient id ${req.patient.id} with a doctor of doctor id ${req.body.doctor_id}`;
+    const message = `Visit creation request by a patient with patient id ${req.patient.id}`;
     const timestamp = new Date();
     const request_type = "POST";
 

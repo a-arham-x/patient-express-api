@@ -1,0 +1,44 @@
+version: '3.0'
+
+services:
+  # Express API service
+  express-api:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - PG_HOST=postgres
+      - PG_USER=postgres
+      - PG_PASSWORD=abdularham123
+      - PG_DATABASE=Patient Schema
+      - ES_HOST=http://elastic-container:9200
+    depends_on:
+      - postgres
+      - elasticsearch
+
+  # PostgreSQL service
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=abdularham123
+      - POSTGRES_DB=Patient Schema
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Elasticsearch service
+  elasticsearch:
+    container_name: elastic-container
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+
+volumes:
+  postgres_data:
+  es_data:

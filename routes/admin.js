@@ -3,20 +3,13 @@ const router = express.Router()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const {body, validationResult} = require("express-validator")
-const {Client} = require("pg")
 const fetchAdmin = require("../middleware/fetchAdmin.js")
 const indexLog = require("../indexLogs.js");
 const searchLogs = require("../searchLogs.js");
+const client = require("../db.js");
+const createTables = require("../createTables.js")
 
-const client = new Client({
-    host : "localhost",
-    database : "Patient Schema",
-    user : "postgres",
-    password : "abdularham123",
-    port :  5432
-})
-
-client.connect()
+createTables()
 
 router.post("/login", [
     body("email", {error: "Email not provided"}).isEmail(),
@@ -36,7 +29,7 @@ router.post("/login", [
         return res.json({message: "Incorrect Email or Password", success: false})
     }
 
-    const admin = await client.query(`SELECT * FROM "admin" WHERE "email" = $1 LIMIT 1`, [req.body.email]).catch((err)=>{
+    const admin = await client.query(`SELECT * FROM public."admin" WHERE "email" = $1 LIMIT 1`, [req.body.email]).catch((err)=>{
         indexLog(message, result="Database Error", timestamp, request_type, success=false, server_err=err);
         num_errors += 1;
         return res.json({message:"Database Error", success: false})
@@ -789,7 +782,7 @@ router.post("/getdoctorbyid", fetchAdmin, [
     }
 
     indexLog(message, result="Request Executed Successfully", timestamp, request_type, success=true);
-    return res.json({patient:data.rows[0], success:true});
+    return res.json({doctor:data.rows[0], success:true});
 })
 
 router.post("/getdoctorbyemail", fetchAdmin, [
@@ -835,7 +828,7 @@ router.post("/getdoctorbyemail", fetchAdmin, [
     }
 
     indexLog(message, result="Request Executed Successfully", timestamp, request_type, success=true);
-    return res.json({patient:data.rows[0], success:true});
+    return res.json({doctor:data.rows[0], success:true});
 })
 
 router.post("/getadminbyid", fetchAdmin, [
@@ -881,7 +874,7 @@ router.post("/getadminbyid", fetchAdmin, [
     }
 
     indexLog(message, result="Request Executed Successfully", timestamp, request_type, success=true);
-    return res.json({patient:data.rows[0], success:true});
+    return res.json({admin:data.rows[0], success:true});
 })
 
 router.post("/getadminbyemail", fetchAdmin, [
@@ -927,7 +920,7 @@ router.post("/getadminbyemail", fetchAdmin, [
     }
 
     indexLog(message, result="Request Executed Successfully", timestamp, request_type, success=true);
-    return res.json({patient:data.rows[0], success:true});
+    return res.json({admin:data.rows[0], success:true});
 })
 
 router.get("/logs", fetchAdmin, async(req, res)=>{
@@ -955,7 +948,7 @@ router.get("/logs", fetchAdmin, async(req, res)=>{
 
     const logs = await searchLogs();
     indexLog(message, result="Get Request Executed Successfully", timestamp, request_type, success=true);
-    return res.json({logs, success: true})
+    return res.json({logs:logs.reverse(), success: true})
 })
 
 module.exports = router;

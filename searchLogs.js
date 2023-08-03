@@ -1,6 +1,6 @@
 const {Client} = require("@elastic/elasticsearch");
 
-const client = new Client({node: 'http://localhost:9200'
+const client = new Client({node: process.env.ES_HOST
 })
 
 async function searchLogs(){
@@ -11,7 +11,8 @@ async function searchLogs(){
               match_all: {}, 
             },
           },
-      });
+        size: 10000
+      })
       
       return body.hits.hits;
 }

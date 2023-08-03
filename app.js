@@ -1,7 +1,6 @@
 const express = require("express")
 const app = express()
 const port = 5000
-const connectToClient = require("./db")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 const dotenv = require("dotenv")
@@ -14,9 +13,7 @@ app.use(bodyParser.json());
 
 app.use(`/admin`, require("./routes/admin"));
 app.use(`/patient`, require("./routes/patients"));
-app.use(`/doctor`, require("./routes/doctors"));
-
-connectToClient()
+app.use(`/doctor`, require("./routes/doctors"))
 
 app.get("/", async (req, res)=>{
     res.send("Hello World")
